@@ -1,0 +1,21 @@
+{
+    "author": "da.gartenlehner@gmail.com",
+    "dependencies": {},
+    "keywords": [],
+    "name": "pebbletasklist",
+    "pebble": {
+        "displayName": "PebbleTaskList",
+        "enableMultiJS": false,
+        "messageKeys": [],
+        "projectType": "native",
+        "resources": {
+            "media": []
+        },
+        "sdkVersion": "3",
+        "uuid": "4e696663-a606-4ae6-a6a3-73147ab5f1e6",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.0.0"
+}
