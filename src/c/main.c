@@ -1,22 +1,16 @@
+/* Author:        Gartenlehner Daniel */
+/* Enrolment nr.: S1510307010         */
+/* Exercise:      SWO32A04BB          */
+/*                Pebble Projekt      */
+/* Created on:    24.11.2016          */ 
+/* Semester:      WS 16/17            */
+/* FileName:      main.c              */
+
 #include <pebble.h>
-
-Window *my_window;
-TextLayer *text_layer;
-
-void handle_init(void) {
-  my_window = window_create();
-
-  text_layer = text_layer_create(GRect(0, 0, 144, 20));
-  window_stack_push(my_window, true);
-}
-
-void handle_deinit(void) {
-  text_layer_destroy(text_layer);
-  window_destroy(my_window);
-}
+#include "tl_win_homescreen.h"
 
 int main(void) {
-  handle_init();
+  tl_win_homescreen_init();
   app_event_loop();
-  handle_deinit();
+  tl_win_homescreen_destroy();
 }
