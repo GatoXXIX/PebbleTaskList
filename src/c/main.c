@@ -10,7 +10,7 @@
 #include "tl_win_homescreen.h"
 
 int main(void) {
-  tl_win_homescreen_init();
+  tl_win_homescreen_init();  
   app_event_loop();
   tl_win_homescreen_destroy();
 }
