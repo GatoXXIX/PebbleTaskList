@@ -1,3 +1,4 @@
+
 /* Author:        Gartenlehner Daniel */
 /* Enrolment nr.: S1510307010         */
 /* Exercise:      SWO32A03BB          */
@@ -12,47 +13,37 @@
 
 /* Internal Prototypes */
 
-static void appendTasklist(Data *g, int id);
 static Tasklist* createTasklist(int id);
 static void freeTasksOfTasklist(Task *firstTask);
 static Task* createTask(int target, double weight);
 
 /* Public functions */
 
-Data* createData(int n) { 
-    
-    int i;
-    Data *g = (Data*)malloc(sizeof(Data*));
-    
-    if(n <= 0) {
-        printf("The input value 'n' should be greater than 0.\n");
+Data* createData() { 
+
+  Data *d = (Data*)malloc(sizeof(Data*));    
+  Tasklist *tl = createTasklist(1);
+  
+    if(d == NULL) {
+        APP_LOG(APP_LOG_LEVEL_DEBUG,"There was not enough memory space for a new Data.\n");
         return NULL;
-    }
-    
-    if(g == NULL) {
-        printf("There was not enough memory space for a new Data.\n");
-        return NULL;
-    }
-    
-    g->n = n;
-    g->firstTasklist = createTasklist(1);
-    
-    for(i = 2; i <= n ; i++)
-        appendTasklist(g, i);   
-    
-    return g;
+    }    
+  d->tl = 1;
+  d->firstTasklist = tl;
+  
+  return d;
 }
 
-void freeData(Data *g) {
+void freeData(Data *d) {
     
     Tasklist *currentTasklist, *nextTasklist;
     
-    if (g == NULL) {
-        printf("The Data does not exist. There is no space allocated.\n");
+    if (d == NULL) {
+        APP_LOG(APP_LOG_LEVEL_DEBUG,"The Data does not exist. There is no space allocated.\n");
         return;
     }
     
-    currentTasklist = g->firstTasklist;
+    currentTasklist = d->firstTasklist;
     while (currentTasklist != NULL) {
         
         freeTasksOfTasklist(currentTasklist->firstTask);
@@ -61,22 +52,22 @@ void freeData(Data *g) {
         currentTasklist = nextTasklist;
     }
 
-    free(g);
-    g = NULL;
+    free(d);
+    d = NULL;
 }
 
-void insertTask(Data *g, int source, int target, double weight) {
+void insertTask(Data *d, int source, int target, double weight) {
     
     Tasklist *currentTasklist;
     Task *currentTask;
     bool operationCompleted = false;
     
-    if(g == NULL) {
-        printf("Task can not be inserted. Data does not exist.\n");
-    } else if (g->n < target || target < 1) { 
-        printf("Task can not be inserted. Check id of 'target'.\n");
+    if(d == NULL) {
+        APP_LOG(APP_LOG_LEVEL_DEBUG,"Task can not be inserted. Data does not exist.\n");
+    } else if (d->tl < target || target < 1) { 
+        APP_LOG(APP_LOG_LEVEL_DEBUG,"Task can not be inserted. Check id of 'target'.\n");
     } else {
-        currentTasklist = g->firstTasklist;
+        currentTasklist = d->firstTasklist;
         while(currentTasklist != NULL && operationCompleted != true) {
             if(currentTasklist->id == source) {
                 currentTask = currentTasklist->firstTask;
@@ -98,22 +89,22 @@ void insertTask(Data *g, int source, int target, double weight) {
         } /* while */
         
         if(!operationCompleted)
-            printf("Task can not be inserted. Check id of 'source'.\n");
+            APP_LOG(APP_LOG_LEVEL_DEBUG,"Task can not be inserted. Check id of 'source'.\n");
     }
 }
 
-void removeTask(Data *g, int source, int target) {
+void removeTask(Data *d, int source, int target) {
     
     Tasklist *currentTasklist;
     Task *currentTask, *preTask;
     bool TasklistFound = false;
     bool TaskFound = false;
     
-    if (g == NULL) {
-        printf("The Data does not exist. There is no space allocated.\n");
+    if (d == NULL) {
+        APP_LOG(APP_LOG_LEVEL_DEBUG,"The Data does not exist. There is no space allocated.\n");
         return;
-    } else if (g->n >= target && target >= 1) {
-        currentTasklist = g->firstTasklist;
+    } else if (d->tl >= target && target >= 1) {
+        currentTasklist = d->firstTasklist;
         while(currentTasklist != NULL && TasklistFound == false) {
             if(currentTasklist->id == source) {
                 currentTask = currentTasklist->firstTask;
@@ -145,55 +136,54 @@ void removeTask(Data *g, int source, int target) {
         } /* while */
         
         if(!TasklistFound)
-            printf("Task doesn't exist. Check 'source'.\n");
+            APP_LOG(APP_LOG_LEVEL_DEBUG,"Task doesn't exist. Check 'source'.\n");
     }
     if(!TaskFound)
-        printf("Task doesn't exist. Check 'target'.\n");
+        APP_LOG(APP_LOG_LEVEL_DEBUG,"Task doesn't exist. Check 'target'.\n");
 }
 
-void printData(Data *g) {
+void printData(Data *d) {
     
     Tasklist *currentTasklist;
     Task *currentTask;
     
-     if (g == NULL) {
-        printf("The Data does not exist. There is no space allocated.\n");
+     if (d == NULL) {
+        APP_LOG(APP_LOG_LEVEL_DEBUG,"The Data does not exist. There is no space allocated.\n");
         return;
     } else {
-        currentTasklist = g->firstTasklist;
+        currentTasklist = d->firstTasklist;
         while(currentTasklist != NULL) {
-            printf("%d. Tasklist", currentTasklist->id);
+            APP_LOG(APP_LOG_LEVEL_DEBUG,"%d. Tasklist", currentTasklist->id);
             
             currentTask = currentTasklist->firstTask;
             while(currentTask != NULL) {
-                printf(" --> %d (w: %f)", 
+                APP_LOG(APP_LOG_LEVEL_DEBUG," --> %d (w: %f)", 
                     currentTask->destTasklistId, currentTask->weight);
                 currentTask = currentTask->nextTask;
             }
-            printf("\n");
             currentTasklist = currentTasklist->nextTasklist;
         }   
     }
 }
 
 /* Returns weight, if Task exists - otherwise '0'. */
-double doesTaskExist(Data *g, int source, int target) {
+double doesTaskExist(Data *d, int source, int target) {
     
     Tasklist *currentTasklist;
     Task *currentTask;
     bool foundSource = false;
     
-    if(g == NULL) {
-        printf("The Data does not exist. There is no space allocated.\n");
+    if(d == NULL) {
+        APP_LOG(APP_LOG_LEVEL_DEBUG,"The Data does not exist. There is no space allocated.\n");
         return 0;
-    } else if (source > g->n || source <= 0) {
-        printf("The source parameter is invalid.\n");
+    } else if (source > d->tl || source <= 0) {
+        APP_LOG(APP_LOG_LEVEL_DEBUG,"The source parameter is invalid.\n");
         return 0;
-    } else if (target > g->n || target <= 0) {
-        printf("The target parameter is invalid.\n");
+    } else if (target > d->tl || target <= 0) {
+        APP_LOG(APP_LOG_LEVEL_DEBUG,"The target parameter is invalid.\n");
         return 0;
     } else {
-        currentTasklist = g->firstTasklist; 
+        currentTasklist = d->firstTasklist; 
         while(currentTasklist != NULL && foundSource == false) {
             if(currentTasklist->id == source) {
                 currentTask = currentTasklist->firstTask;
@@ -215,39 +205,23 @@ double doesTaskExist(Data *g, int source, int target) {
     }
 }
 
-int getSizeOfData(Data *g) {
-    
-    if(g == NULL) {
-        printf("The Data does not exist. There is no space allocated.\n");
-        return 0;
-    } else {
-        return g->n;
-    }
-}
-
 /* Private functions */
 
-static void appendTasklist(Data *g, int id) {
-    Tasklist *current = g->firstTasklist;
-    while(current->nextTasklist != NULL) {
-        current = current->nextTasklist;
-    }
-    current->nextTasklist = createTasklist(id);
-}
-
 static Tasklist* createTasklist(int id) {
-  Tasklist *n = (Tasklist*)malloc(sizeof(Tasklist));
+    
+  Tasklist *tl =(Tasklist*)malloc(sizeof(Tasklist));
   
-  if (n == NULL) {
-    printf("There was not enough memory space for a new Tasklist.\n");
+  if (tl == NULL) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG,"There was not enough memory space for a new Tasklist.\n");
     return NULL;
   }
   
-  n->id = id;
-  n->nextTasklist = NULL;
-  n->firstTask = NULL;
-  return n;
-}
+  tl->id = id;
+  tl->nextTasklist = NULL;
+  tl->firstTask = NULL;
+  
+  return tl;
+} 
 
 static void freeTasksOfTasklist(Task *firstTask) {
     
@@ -262,16 +236,16 @@ static void freeTasksOfTasklist(Task *firstTask) {
 }
 
 static Task* createTask(int target, double weight) {
-    Task *e = (Task*)malloc(sizeof(Task));
+    Task *t = (Task*)malloc(sizeof(Task));
     
-    if(e == NULL) {
-        printf("There was not enough memory space for a new Task.\n");
+    if(t == NULL) {
+        APP_LOG(APP_LOG_LEVEL_DEBUG,"There was not enough memory space for a new Task.\n");
         return NULL;
     }
     
-    e->weight = weight;
-    e->destTasklistId = target;
-    e->nextTask = NULL;
-    return e;
+    t->weight = weight;
+    t->destTasklistId = target;
+    t->nextTask = NULL;
+    return t;
 }
 
