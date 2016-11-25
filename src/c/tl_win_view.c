@@ -11,22 +11,27 @@
 #include "tl_win_view.h"
 #include "tl_win_overview.h"
 
+/* Prototypes */
+void tl_win_view_click_back_handler(ClickRecognizerRef recognizer, void *context);
+void tl_win_view_click_handler(Window *window);
+void tl_win_view_init(); 
+void tl_win_view_destroy();
+void tl_win_view_load(Window *window);
+void tl_win_view_unload(Window *window);
+  
+/* Variables */
 Window *view_window;
 TextLayer *view_textlayer;
 int viewMode = 0;
 
-/* Prototypes */
-void tl_win_view_init(void);
-void tl_win_view_unload(Window *window);
-static void tl_win_view_load(Window *window);
-void tl_win_view_destroy(void);
-
+/* Global methods defined in header */
 void tl_win_view_init_by_mode(int mode) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "tl_win_view_init_by_mode");
     viewMode = mode;
     tl_win_view_init();
 }
 
+/* Implementations */
 void tl_win_view_click_back_handler(ClickRecognizerRef recognizer, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "tl_win_view_click_back_handler");
     window_stack_pop_all(true);
@@ -50,7 +55,7 @@ void tl_win_view_init() {
   window_stack_push(view_window, true);
 }
 
-static void tl_win_view_load(Window *window) {
+void tl_win_view_load(Window *window) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "tl_win_view_load");
     Layer *view_layer = window_get_root_layer(window);
     GRect bounds = layer_get_bounds(view_layer);

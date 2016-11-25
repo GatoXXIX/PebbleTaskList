@@ -15,75 +15,92 @@
 #include "tl_win_creation.h"
 #include "tl_win_view.h"
 
-#define MENU_ITEMS 4
-#define MENU_SECTIONS 1
+/* Defines */
+#define MENU_CREATE_TASK "CREATE TASK"
+#define MENU_VIEW_ALL "VIEW ALL TASKS"
+#define MENU_VIEW_PRIO "VIEW BY PRIORITY"
+#define MENU_VIEW_DATE "VIEW BY DATE"
 
+/* Prototypes */
+void tl_win_overview_select(int index, void *ctx);
+void tl_win_overview_load(Window *window);
+void tl_win_overview_unload(Window *window);
+void createAutomatedSampleTaskData();
+
+/* Variables */
 Window *overview_window;
 static SimpleMenuLayer *overview_simplemenulayer;
+static SimpleMenuItem menu_items[4];
+static SimpleMenuSection menu_sections[1];
 
-static SimpleMenuItem menu_items[MENU_ITEMS];
-static SimpleMenuSection menu_sections[MENU_SECTIONS];
-
-static void overview_click_select(int index, void *ctx) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "overview_click_select --> %d", index);
-    switch(index) {
-        case 0: 
-            /* Event -> Create task */
-            tl_win_creation_init();
-            break;
-        case 1:
-            /* Event -> View all tasks */
-            tl_win_view_init_by_mode(0);
-            break;
-        case 2:
-            /* Event -> View tasks ordered by priority */ 
-            tl_win_view_init_by_mode(1);
-            break;
-        case 3:
-            /* Event > View tasks ordered by date */
-            tl_win_view_init_by_mode(2);
-            break;
-        default:
-            tl_win_view_init_by_mode(0);
-            break;
-    }
-    tl_win_overview_destroy();    
+/* Global methods defined in header */
+void tl_win_overview_init() {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "tl_win_overview_init");
+  overview_window = window_create();
+  window_set_window_handlers(overview_window, (WindowHandlers) {
+    .load = tl_win_overview_load,
+    .unload = tl_win_overview_unload,
+  });
+  window_stack_push(overview_window, true); 
 }
 
-static void tl_win_overview_load(Window *window) {
+void tl_win_overview_destroy() {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "tl_win_overview_destroy");
+  window_destroy(overview_window);
+}
+
+/* Implementations */
+void tl_win_overview_select(int index, void *ctx) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "overview_click_select --> %d", index);
+    
+  if(index == 0)
+    tl_win_creation_init(); /* Event -> Create task */
+  else if (index == 1)
+    tl_win_view_init_by_mode(0); /* Event -> View all tasks */
+  else if (index == 2)
+    tl_win_view_init_by_mode(1); /* Event -> View tasks ordered by priority */   
+  else if (index == 3)
+    tl_win_view_init_by_mode(2); /* Event -> View tasks ordered by priority */   
+  else
+    tl_win_view_init_by_mode(0);
+  
+  /* Destroy */
+  tl_win_overview_destroy();    
+}
+
+void tl_win_overview_load(Window *window) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "tl_win_overview_load");
-  int num_a_items = 0;        
-  menu_items[num_a_items++] = (SimpleMenuItem) {
-    .title = "CREATE TASK",
-    .callback = overview_click_select,
+  
+  menu_items[0] = (SimpleMenuItem) {
+    .title = MENU_CREATE_TASK,
+    .callback = tl_win_overview_select,
   };
-  menu_items[num_a_items++] = (SimpleMenuItem) {
-    .title = "VIEW ALL TASKS",
-    .callback = overview_click_select,
+  menu_items[1] = (SimpleMenuItem) {
+    .title = MENU_VIEW_ALL,
+    .callback = tl_win_overview_select,
   };
-  menu_items[num_a_items++] = (SimpleMenuItem) {
-    .title = "VIEW BY PRIORITY",
-    .callback = overview_click_select,
+  menu_items[2] = (SimpleMenuItem) {
+    .title = MENU_VIEW_PRIO,
+    .callback = tl_win_overview_select,
   };
-     menu_items[num_a_items++] = (SimpleMenuItem) {
-    .title = "VIEW BY DATE",
-    .callback = overview_click_select,
+     menu_items[3] = (SimpleMenuItem) {
+    .title = MENU_VIEW_DATE,
+    .callback = tl_win_overview_select,
   };
 
-    menu_sections[0] = (SimpleMenuSection) {
-        .num_items = MENU_ITEMS,
-        .items = menu_items,
-    };
+  menu_sections[0] = (SimpleMenuSection) {
+    .num_items = 4,
+    .items = menu_items,
+  };
     
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_frame(window_layer);
-  overview_simplemenulayer = simple_menu_layer_create(bounds, window, menu_sections, MENU_SECTIONS, NULL);
+  overview_simplemenulayer = simple_menu_layer_create(bounds, window, menu_sections, 1, NULL);
   layer_add_child(window_layer, simple_menu_layer_get_layer(overview_simplemenulayer));
     
   /* Memory allocation causes to crash the pebble-app */
   /* Activate for documentation only */
-  // createAutomatedSampleTaskData();
-  
+  // createAutomatedSampleTaskData();  
 }
 
 void createAutomatedSampleTaskData() {
@@ -99,17 +116,4 @@ void tl_win_overview_unload(Window *window) {
   simple_menu_layer_destroy(overview_simplemenulayer);
 }
 
-void tl_win_overview_init() {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "tl_win_overview_init");
-  overview_window = window_create();
-  window_set_window_handlers(overview_window, (WindowHandlers) {
-    .load = tl_win_overview_load,
-    .unload = tl_win_overview_unload,
-  });
-  window_stack_push(overview_window, true); 
-}
 
-void tl_win_overview_destroy() {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "tl_win_overview_destroy");
-  window_destroy(overview_window);
-}

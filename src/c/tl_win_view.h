@@ -10,5 +10,7 @@
 #define tl_win_view_h
 
 void tl_win_view_init_by_mode(int mode);
+void tl_win_view_init(); 
+void tl_win_view_destroy();
 
 #endif
